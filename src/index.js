@@ -1,6 +1,7 @@
 'strict';
+import basic from './sections/basic';
 import './scss/main.scss';
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded');
+    basic();
 });
