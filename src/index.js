@@ -1,11 +1,12 @@
 'strict';
 import basic from './sections/basic/basic';
-import textParticles from './sections/text-particles/text-particles';
+import { textParticles } from './sections/text-particles/text-particles';
 
 let start, previousTimeStamp;
 
 document.addEventListener('DOMContentLoaded', () => {
     window.requestAnimationFrame(step);
+    textParticles();
 });
 
 function step(timestamp) {
@@ -14,6 +15,5 @@ function step(timestamp) {
     if (previousTimeStamp !== timestamp) {
         window.requestAnimationFrame(step);
         // basic();
-        textParticles();
     }
 }
