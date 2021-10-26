@@ -2,20 +2,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const autoprefixer = require('autoprefixer');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const WebpackShellPlugin = require('webpack-shell-plugin');
 const fs = require('fs');
 const path = require('path');
-
-// Windows
-const winPathBase = 'wp\\wp-content\\themes\\property-realli\\assets\\';
-const winPathCSS = `${winPathBase}main.css`;
-const winPathJS = `${winPathBase}main.js`;
-
-// Mac
-const macPathBase = 'wp/wp-content/themes/property-realli/assets/';
-const macPathCSS = `${macPathBase}main.css`;
-const macPathJS = `${macPathBase}main.js`;
-
 
 module.exports = (env = {}) => {
 
@@ -29,26 +17,6 @@ module.exports = (env = {}) => {
             isProd ? MiniCssExtractPlugin.loader : 'style-loader',
             'css-loader'
         ];
-    };
-
-    const runShell = () => {
-        return;
-
-        switch (process.platform) {
-            case 'win32': return [
-                'echo "Transfering files... "',
-                `copy dist\\main.css ..\\${winPathCSS}`,
-                `copy dist\\main.js ..\\${winPathJS}`,
-                'echo "Files done!"',
-                'cd .\\dist',
-                'echo Options +Indexes > .htaccess'
-            ];
-            case 'darwin': return [
-                `cp dist/main.css ../${macPathCSS}`,
-                `cp dist/main.js ../${macPathJS}`
-            ];
-            default: return false;
-        }
     };
 
     const generateHtmlPlugins = (templateDir) => {
@@ -73,11 +41,7 @@ module.exports = (env = {}) => {
             plugins.push(new MiniCssExtractPlugin({
                 filename: 'main.css'
             }));
-            plugins.push(
-                new WebpackShellPlugin({
-                    onBuildExit: runShell()
-                })
-            );
+            plugins.push();
         }
         return plugins;
     };
@@ -102,9 +66,21 @@ module.exports = (env = {}) => {
 
                 // Loading Images
                 {
-                    test: /\.(png|jpe?g|gif|ico)$/,
+                    test: /\.(jpe?g|gif|ico)$/,
                     use: [{
                         loader: 'file-loader',
+                        options: {
+                            outputPath: 'images',
+                            name: '[name].[ext]'
+                        }
+                    }]
+                },
+
+                // Loading Images
+                {
+                    test: /\.(png)$/,
+                    use: [{
+                        loader: 'url-loader',
                         options: {
                             outputPath: 'images',
                             name: '[name].[ext]'
