@@ -4,12 +4,13 @@ import './liquid-particles.scss';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const particlesMaxSize = 10;
+const particlesQty = 80;
+const particlesMaxSize = 20;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let particleArray = [];
-let imageCoordinates = [];
+let buttons = [];
 
 const mouse = {
     x: null,
@@ -18,7 +19,6 @@ const mouse = {
 };
 
 function liquidParticles() {
-    modifyHtml();
     window.addEventListener('mousemove', (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
@@ -27,99 +27,153 @@ function liquidParticles() {
     window.addEventListener('resize', (e) => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        init();
+        createParticles();
     });
 
     function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawButtons();
         for (let i = 0; i < particleArray.length; i++) {
             particleArray[i].update();
         }
-        // connect();
         requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+class Block {
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.baseX = this.x;
+    }
+    update() {
+        let directionX = 2.2;
+        if ((
+            mouse.x < this.x + this.width &&
+            mouse.x > this.x &&
+            mouse.y < this.y + this.height &&
+            mouse.y > this.y
+        ) &&
+            (this.x > this.baseX - 50)
+        ) {
+            this.x -= directionX;
+            this.width += directionX;
+        } else if (this.x < this.baseX) {
+            this.x += directionX;
+            this.width -= directionX;
+        }
+    }
+    draw() {
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.closePath();
     }
 }
 
 class Particle {
-    constructor(x, y, color, size) {
-        // this.x = x;
-        // this.y = y;
-        this.x = x + canvas.width / 2 - png.width;
-        this.y = y + canvas.height / 2 - png.height * 2;
-        this.color = color;
+    constructor(x, y, size, mass) {
+        this.x = x;
+        this.y = y;
         this.size = size;
+        this.mass = mass;
+
         this.baseX = this.x;
         this.baseY = this.y;
         this.baseSize = this.size;
-        this.mass = (Math.random() * 30) + 1;
+        this.baseMass = this.mass;
+
         this.mouseDistance = null;
+        this.flowingRight = false;
+    }
+    update() {
+        // collision with mouse;
+        if (
+            this.x > mouse.x - 50 &&
+            this.x < mouse.x + 50 &&
+            this.y > mouse.y - 5 &&
+            this.y < mouse.y + 5
+        ) {
+            this.x -= this.mass;
+            this.y += this.mass;
+            this.flowingRight = true;
+        }
+
+        // collision with blocks;
+        for (let i = 0; i < buttons.length; i++) {
+            if (
+                this.x < buttons[i].x + buttons[i].width &&
+                this.x > buttons[i].x &&
+                this.y < buttons[i].y + buttons[i].height &&
+                this.y > buttons[i].y
+            ) {
+                this.mass = 0;
+                if (!this.flowingRight) {
+                    this.x -= 4;
+                }
+                else {
+                    this.x += 4;
+                }
+            }
+            else {
+                this.mass += 0.03;
+            }
+        }
+
+        // fall off screen
+        if (canvas.height < this.y) {
+            this.y = 0 - this.size;
+            this.x = Math.random() * 60 + 200;
+            this.mass = this.baseMass;
+            this.flowingRight = false;
+        }
+        this.y += this.mass;
+        this.draw();
     }
 
     draw() {
+        ctx.fillStyle = 'rgba(128,197,222,1)';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.closePath();
         ctx.fill();
     }
-
-    update() {
-        ctx.fillStyle = this.color;
-        let dx = mouse.x - this.x;
-        let dy = mouse.y - this.y;
-        this.mouseDistance = Math.sqrt(dx * dx + dy * dy);
-
-        const forceDirectionX = dx / this.mouseDistance;
-        const forceDirectionY = dy / this.mouseDistance;
-        const maxDistance = mouse.radius;
-        let force = (maxDistance - this.mouseDistance) / maxDistance;
-        if (force < 0) force = 0;
-
-        const directionX = forceDirectionX * force * this.mass;
-        const directionY = forceDirectionY * force * this.mass;
-        if (this.mouseDistance < mouse.radius) {
-            this.x -= directionX;
-            this.y -= directionY;
-        }
-        else {
-            if (this.x !== this.baseX) {
-                this.x -= (this.x - this.baseX) / 10;
-            }
-            if (this.y !== this.baseY) {
-                this.y -= (this.y - this.baseY) / 10;
-            }
-        }
-        this.draw();
-    }
 }
 
 
-function init() {
+function createParticles() {
     particleArray = [];
-    for (let y = 0, y2 = imageCoordinates.height; y < y2; y++) {
-        for (let x = 0, x2 = imageCoordinates.width; x < x2; x++) {
-            const index = (4 * y * imageCoordinates.width) + (4 * x) + 3;
-            if (imageCoordinates.data[index] > 128) {
-                const posX = x;
-                const posY = y;
-                const size = Math.random() * particlesMaxSize;
-                const color = `rgb(
-                                ${imageCoordinates.data[index - 3]},
-                                ${imageCoordinates.data[index - 2]}, 
-                                ${imageCoordinates.data[index - 1]})
-                               `;
-                particleArray.push(new Particle(posX * 2, posY * 2, color, size));
-            }
-        }
-
+    for (let i = 0; i < particlesQty; i++) {
+        const x = Math.random() * 60 + 200;
+        const y = Math.random() * canvas.height + 200;
+        const size = Math.random() * particlesMaxSize + 5;
+        const mass = Math.random() * 1.5 + 0.9;
+        particleArray.push(new Particle(x, y, size, mass));
     }
 }
+createParticles();
 
-function modifyHtml() {
-    const h1 = document.createElement('div'),
-        body = document.querySelector('body');
+function createButtons() {
+    for (let i = 0; i < 5; i++) {
+        const topMargin = 150;
+        const buttonMargin = 5;
+        const x = 150;
+        const y = topMargin + ((70 + buttonMargin) * i);
+        const height = 50;
+        const width = 200;
+        buttons.push(new Block(x, y, width, height));
+    }
+}
+createButtons();
 
-    h1.classList.add('box');
-
-    body.prepend(h1);
+function drawButtons() {
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].update();
+        buttons[i].draw();
+    }
 }
 
 export default liquidParticles;
