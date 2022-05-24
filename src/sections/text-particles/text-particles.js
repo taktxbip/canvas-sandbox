@@ -2,7 +2,7 @@ import './text-particles.scss';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const particlesMaxSize = 3;
+const particlesMaxSize = 2;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -13,7 +13,7 @@ const adjustY = 10;
 const mouse = {
     x: null,
     y: null,
-    radius: 250
+    radius: 500
 };
 
 function textParticles() {
@@ -29,8 +29,8 @@ function textParticles() {
     // });
 
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 50px Verdana';
-    ctx.fillText('ED', 50, 40);
+    ctx.font = 'bold 30px Verdana';
+    ctx.fillText('A', 50, 40);
     const textCoordinates = ctx.getImageData(0, 0, 200, 200);
 
 
@@ -97,7 +97,8 @@ function textParticles() {
                 if (textCoordinates.data[index] > 128) {
                     const posX = x + adjustX;
                     const posY = y + adjustY;
-                    const size = Math.random() * particlesMaxSize;
+                    // const size = Math.random() * particlesMaxSize;
+                    const size = particlesMaxSize;
                     particleArray.push(new Particle(posX * 10, posY * 10, size));
                 }
             }

@@ -4,8 +4,8 @@ import './liquid-particles.scss';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const particlesQty = 80;
-const particlesMaxSize = 20;
+const particlesQty = 1000;
+const particlesMaxSize = 10;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 

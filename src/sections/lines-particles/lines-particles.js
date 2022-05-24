@@ -2,13 +2,13 @@ import './lines-particles.scss';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const particleQty = 500;
-const particleMaxSize = 10;
+const particleQty = 5000;
+const particleMaxSize = 1;
 
 // Max is 1;
 const particleMaxMass = 0.1;
 const particleMaxSpeed = 0.05;
-const fade = 0.2;
+const fade = 0.01;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -48,8 +48,8 @@ class Particle {
         grad.addColorStop('0.5', 'blue');
         grad.addColorStop('1', 'red');
 
-        ctx.fillStyle = grad;
-        // ctx.fillStyle = '#39c';
+        // ctx.fillStyle = grad;
+        ctx.fillStyle = '#39c';
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.closePath();
@@ -76,7 +76,7 @@ class Particle {
             this.y + this.size > title.y
         ) {
             this.y -= 3;
-            this.mass *= -this.baseMass * 10;
+            this.mass *= -this.baseMass * 4;
         }
 
         // const forceX = (canvas.height - this.y) / canvas.height;
@@ -122,7 +122,7 @@ function init() {
         const y = Math.random() * canvas.height;
         const size = Math.random() * particleMaxSize;
         const mass = Math.random() * particleMaxMass;
-        particleArray.push(new Particle(x, y, size, mass, 0.01));
+        particleArray.push(new Particle(x, y, size, mass, 0.05));
     }
 }
 

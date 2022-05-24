@@ -6,7 +6,7 @@ png.src = img;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const particlesMaxSize = 10;
+const particlesMaxSize = 3;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -113,7 +113,9 @@ function init() {
             if (imageCoordinates.data[index] > 128) {
                 const posX = x;
                 const posY = y;
-                const size = Math.random() * particlesMaxSize;
+                let size = Math.random() * particlesMaxSize;
+                // let size = particlesMaxSize;
+                size = 3;
                 const color = `rgb(
                                 ${imageCoordinates.data[index - 3]},
                                 ${imageCoordinates.data[index - 2]}, 
